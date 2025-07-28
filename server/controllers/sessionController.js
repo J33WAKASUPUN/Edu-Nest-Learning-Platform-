@@ -46,8 +46,8 @@ export const createSession = async (req, res) => {
 export const getSessions = async (req, res) => {
   try {
     const sessions = await Session.find()
-      .populate('teacher', 'firstName lastName')
-      .populate('teacher', 'firstName lastName img') ;
+      .populate('teacher', 'firstName lastName img')
+      .populate('enrolledStudents', 'firstName lastName');
     res.json(sessions);
   } catch (err) {
     res.status(500).json({

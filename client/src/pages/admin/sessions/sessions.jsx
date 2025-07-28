@@ -94,12 +94,12 @@ export default function Sessions() {
   console.log("User Role:", userRole);
 
   // Color scheme
-  const primaryColor = "#4f46e5"; // Indigo 600
-  const secondaryColor = "#0ea5e9"; // Sky 500
+  // const primaryColor = "#4f46e5"; // Indigo 600
+  // const secondaryColor = "#0ea5e9"; // Sky 500
   const successColor = "#10b981"; // Emerald 500
   const dangerColor = "#ef4444"; // Red 500
   const warningColor = "#f59e0b"; // Amber 500
-  const neutralColor = "#6b7280"; // Gray 500
+  // const neutralColor = "#6b7280"; // Gray 500
 
   const handleSubjectChange = (value) => {
     // Set the subject code based on the selected subject
@@ -353,6 +353,15 @@ export default function Sessions() {
         <div className="link-cell">
           <div className="link-avatar">{record.code}</div>
         </div>
+      ),
+    },
+    // New column for Enroll Count
+    {
+      title: "Enroll Count",
+      key: "enrollCount",
+      align: "center",
+      render: (_, record) => (
+        <span>{record.enrolledStudents?.length || 0}</span>
       ),
     },
     {

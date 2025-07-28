@@ -45,6 +45,24 @@ export const createEnrollment = async (req, res) => {
     // Save with proper error handling
     await enrollment.save();
 
+    // After saving enrollment, add user to enrolledStudents in matching session(s)
+    // Find sessions for this subject and month/year
+    const yearNum = parseInt(year);
+    const monthNum = parseInt(month);
+    // Find all sessions for this subject in the given month/year
+    const sessions = await Session.find({
+      subject,
+      // date is stored as string 'YYYY-MM-DD', so match year and month
+      date: { $regex: `^${yearNum}-` + (monthNum < 10 ? `0${monthNum}` : monthNum) + `-` }
+    });
+    for (const session of sessions) {
+      // Only add if not already present
+      if (!session.enrolledStudents.map(id => id.toString()).includes(userId.toString())) {
+        session.enrolledStudents.push(userId);
+        await session.save();
+      }
+    }
+
     console.log("[DEBUG] Enrollment saved successfully", enrollment);
     return res.status(201).json({
       message: "Enrollment submitted successfully",
