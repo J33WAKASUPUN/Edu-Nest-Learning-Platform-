@@ -51,7 +51,8 @@ export default function EnrollPage() {
   const navigate = useNavigate()
 
   const currentYear = new Date().getFullYear()
-  const years = Array.from({ length: 10 }, (_, i) => currentYear + i)
+  // Only allow current year and next 2 years (max: currentYear + 2)
+  const years = Array.from({ length: 3 }, (_, i) => currentYear + i)
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
     label: new Date(0, i).toLocaleString("default", { month: "long" }),
@@ -132,8 +133,14 @@ export default function EnrollPage() {
         form.append('image', photo);
       }
 
+      // Debug: log FormData entries
+      for (let pair of form.entries()) {
+        console.log('[DEBUG] FormData', pair[0], pair[1]);
+      }
+
       // You need to get the token from your auth context or storage
       const token = localStorage.getItem("token"); // or however you store the token
+      console.log('[DEBUG] Token:', token);
 
       await axios.post(
         '/api/enrollments/enroll',
@@ -185,13 +192,18 @@ export default function EnrollPage() {
       let errorMessage = "Failed to submit enrollment. Please try again.";
 
       if (error.response) {
+        console.error('[ERROR] Backend response:', error.response.data);
         if (error.response.status === 400) {
           errorMessage = error.response.data.message || "Invalid enrollment data";
         } else if (error.response.status === 403) {
           errorMessage = "Access denied. Please check your permissions.";
         } else if (error.response.status === 401) {
           errorMessage = "Session expired. Please login again.";
+        } else if (error.response.data && error.response.data.error) {
+          errorMessage = error.response.data.error;
         }
+      } else {
+        console.error('[ERROR] Network or unknown error:', error);
       }
 
       toast.error(

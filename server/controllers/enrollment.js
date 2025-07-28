@@ -14,6 +14,11 @@ const SUBJECTS = [
 
 export const createEnrollment = async (req, res) => {
   try {
+    console.log("[DEBUG] Incoming enrollment request");
+    console.log("[DEBUG] req.user:", req.user);
+    console.log("[DEBUG] req.body:", req.body);
+    console.log("[DEBUG] req.file:", req.file);
+
     const userId = req.user._id;
     const { message, subject, month, year } = req.body;
     // If file uploaded, get path, else null
@@ -21,6 +26,7 @@ export const createEnrollment = async (req, res) => {
 
     // Basic validation
     if (!message || !subject || !month || !year || !imageUrl) {
+      console.log("[DEBUG] Validation failed: missing fields", { message, subject, month, year, imageUrl });
       return res.status(400).json({
         message: "All fields are required (including image)"
       });
@@ -39,14 +45,16 @@ export const createEnrollment = async (req, res) => {
     // Save with proper error handling
     await enrollment.save();
 
+    console.log("[DEBUG] Enrollment saved successfully", enrollment);
     return res.status(201).json({
       message: "Enrollment submitted successfully",
       enrollment
     });
 
   } catch (error) {
+    console.error("[ERROR] Enrollment submission failed:", error);
     // Handle specific error types
-    if (error.message.includes('Cannot enroll for past months')) {
+    if (error.message && error.message.includes('Cannot enroll for past months')) {
       return res.status(400).json({
         message: error.message
       });
@@ -61,7 +69,8 @@ export const createEnrollment = async (req, res) => {
 
     return res.status(500).json({
       message: "Failed to submit enrollment",
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 };
